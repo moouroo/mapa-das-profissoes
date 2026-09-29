@@ -64,7 +64,7 @@ button.secondary{background:#68737d}.status{margin-top:15px;padding:12px;border-
 </div>
 </main>
 <script>
-const BACKEND_URL = "COLE_AQUI_A_URL_DO_APPS_SCRIPT";
+const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxtp3uBCfSNBWhGH9sLCPHwVb_X_3hqk3NYn2druWeGAFKFQLilSpLhmhWjxQ0UmW4OSg/exec";
 const ids=["uf","municipio","aluno","data","categoria","ocupacao","cbo","setor","vinculos","remuneracao","sexo","idade","escolaridade","fonte","link","obs"];
 function dados(){let o={};ids.forEach(id=>o[id]=document.getElementById(id).value);o.timestamp=new Date().toISOString();return o}
 function msg(t,ok=true){let s=document.getElementById("status");s.style.display="block";s.style.background=ok?"#e8f5e9":"#fdecec";s.textContent=t}
