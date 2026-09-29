@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Painel — Mapa das Profissões</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body{font-family:Arial;background:#f3f5f7;margin:0;color:#18222d}header{background:#183b56;color:#fff;padding:25px}
+main{max-width:1200px;margin:25px auto;padding:0 15px}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.card{background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 10px #0001;margin-bottom:18px}.num{font-size:27px;font-weight:bold;margin-top:8px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.chart{height:360px}.filters{display:grid;grid-template-columns:1fr 1fr 2fr;gap:12px}
+select,input{padding:11px;border:1px solid #ccd3da;border-radius:8px}table{width:100%;border-collapse:collapse}th,td{padding:9px;border-bottom:1px solid #e5e7eb;text-align:left;font-size:14px}
+@media(max-width:750px){.cards,.grid,.filters{grid-template-columns:1fr}}
+</style></head>
+<body><header><h1>Mapa das Profissões e do Trabalho</h1><p>Painel da turma — dados enviados pelos alunos</p></header>
+<main>
+<div class="card"><div class="filters">
+<select id="uf" onchange="render()"><option value="">Todos os estados</option></select>
+<select id="categoria" onchange="render()"><option value="">Todas as categorias</option></select>
+<input id="busca" oninput="render()" placeholder="Pesquisar profissão...">
+</div></div>
+<div class="cards">
+<div class="card"><div>Pesquisas cadastradas</div><div class="num" id="nPesq">0</div></div>
+<div class="card"><div>Estados pesquisados</div><div class="num" id="nUF">0</div></div>
+<div class="card"><div>Profissões distintas</div><div class="num" id="nProf">0</div></div>
+<div class="card"><div>Vínculos informados</div><div class="num" id="nVinc">0</div></div>
+</div>
+<div class="grid">
+<div class="card"><h2>Distribuição por categoria</h2><div class="chart"><canvas id="pizza"></canvas></div></div>
+<div class="card"><h2>Pesquisas por estado</h2><div class="chart"><canvas id="barras"></canvas></div></div>
+</div>
+<div class="card"><h2>Base pesquisada pela turma</h2><div style="overflow:auto"><table><thead><tr><th>UF</th><th>Município</th><th>Categoria</th><th>Profissão</th><th>Vínculos</th><th>Remuneração</th><th>Fonte</th></tr></thead><tbody id="tbody"></tbody></table></div></div>
+</main>
+<script>
+const BACKEND_URL="https://script.google.com/macros/s/AKfycbxtp3uBCfSNBWhGH9sLCPHwVb_X_3hqk3NYn2druWeGAFKFQLilSpLhmhWjxQ0UmW4OSg/exec"; let dados=[]; let pizza,barras;
+async function carregar(){if(BACKEND_URL.startsWith("COLE_")){dados=[];render();return}
+try{let r=await fetch(BACKEND_URL);dados=await r.json();popularFiltros();render()}catch(e){console.error(e)}}
+function popularFiltros(){let u=[...new Set(dados.map(x=>x.uf).filter(Boolean))].sort(),c=[...new Set(dados.map(x=>x.categoria).filter(Boolean))].sort();uf.innerHTML='<option value="">Todos os estados</option>'+u.map(x=>`<option>${x}</option>`).join("");categoria.innerHTML='<option value="">Todas as categorias</option>'+c.map(x=>`<option>${x}</option>`).join("")}
+function render(){let U=uf.value,C=categoria.value,B=busca.value.toLowerCase();let a=dados.filter(x=>(!U||x.uf===U)&&(!C||x.categoria===C)&&(!B||String(x.ocupacao).toLowerCase().includes(B)));
+nPesq.textContent=a.length;nUF.textContent=new Set(a.map(x=>x.uf)).size;nProf.textContent=new Set(a.map(x=>x.ocupacao)).size;nVinc.textContent=a.reduce((s,x)=>s+(Number(x.vinculos)||0),0).toLocaleString("pt-BR");
+let cat={};a.forEach(x=>cat[x.categoria]=(cat[x.categoria]||0)+1);let ufs={};a.forEach(x=>ufs[x.uf]=(ufs[x.uf]||0)+1);
+if(pizza)pizza.destroy();if(barras)barras.destroy();
+pizza=new Chart(document.getElementById("pizza"),{type:"pie",data:{labels:Object.keys(cat),datasets:[{data:Object.values(cat)}]},options:{maintainAspectRatio:false}});
+barras=new Chart(document.getElementById("barras"),{type:"bar",data:{labels:Object.keys(ufs),datasets:[{label:"Pesquisas",data:Object.values(ufs)}]},options:{maintainAspectRatio:false}});
+tbody.innerHTML=a.slice(0,300).map(x=>`<tr><td>${x.uf||""}</td><td>${x.municipio||""}</td><td>${x.categoria||""}</td><td>${x.ocupacao||""}</td><td>${Number(x.vinculos||0).toLocaleString("pt-BR")}</td><td>${x.remuneracao?Number(x.remuneracao).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}):""}</td><td>${x.fonte||""}</td></tr>`).join("")}
+carregar();
+</script></body></html>

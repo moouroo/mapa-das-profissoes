@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mapa das Profissões — Pesquisa do Aluno</title>
+<style>
+body{font-family:Arial,sans-serif;background:#f4f6f8;margin:0;color:#17202a}
+header{background:#183b56;color:white;padding:24px}
+main{max-width:900px;margin:25px auto;padding:0 16px}
+.card{background:white;border-radius:14px;padding:22px;margin-bottom:18px;box-shadow:0 2px 10px #0001}
+h1,h2{margin-top:0} label{font-weight:bold;display:block;margin:13px 0 6px}
+input,select,textarea{width:100%;box-sizing:border-box;padding:11px;border:1px solid #ccd3da;border-radius:8px;font-size:15px}
+textarea{min-height:80px} .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+button{background:#1677c8;color:white;border:0;border-radius:9px;padding:13px 20px;font-size:16px;cursor:pointer;margin-top:15px}
+button.secondary{background:#68737d}.status{margin-top:15px;padding:12px;border-radius:8px;display:none}
+.note{font-size:13px;color:#59636e}.required{color:#b42318}
+@media(max-width:650px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><h1>Mapa das Profissões e do Trabalho</h1><p>Formulário de pesquisa — RAIS 2025</p></header>
+<main>
+<div class="card">
+<h2>Identificação da pesquisa</h2>
+<div class="grid">
+<div><label>Estado (UF) <span class="required">*</span></label>
+<select id="uf"><option value="">Selecione</option>
+<option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option><option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MT</option><option>MS</option><option>MG</option><option>PA</option><option>PB</option><option>PR</option><option>PE</option><option>PI</option><option>RJ</option><option>RN</option><option>RS</option><option>RO</option><option>RR</option><option>SC</option><option>SP</option><option>SE</option><option>TO</option></select></div>
+<div><label>Município</label><input id="municipio" placeholder="Ex.: São Paulo"></div>
+<div><label>Nome da dupla/aluno</label><input id="aluno"></div>
+<div><label>Data da consulta</label><input id="data" type="date"></div>
+</div>
+</div>
+
+<div class="card">
+<h2>Profissão / ocupação pesquisada</h2>
+<label>Categoria profissional <span class="required">*</span></label>
+<select id="categoria"><option value="">Selecione</option>
+<option>Administração e gestão</option><option>Agropecuária e meio ambiente</option><option>Comércio e vendas</option><option>Construção</option><option>Educação</option><option>Indústria</option><option>Informação e tecnologia</option><option>Saúde</option><option>Turismo, alimentação e hospitalidade</option><option>Transportes e logística</option><option>Comunicação e artes</option><option>Serviço público, segurança e defesa</option><option>Outros</option></select>
+<label>Nome da ocupação/profissão <span class="required">*</span></label>
+<input id="ocupacao" placeholder="Ex.: Técnico em enfermagem">
+<div class="grid">
+<div><label>Código CBO</label><input id="cbo" placeholder="Ex.: 3222-05"></div>
+<div><label>Setor econômico</label><select id="setor"><option>Serviços</option><option>Comércio</option><option>Indústria</option><option>Construção</option><option>Agropecuária</option><option>Administração pública</option><option>Outro</option></select></div>
+<div><label>Nº de vínculos/trabalhadores</label><input id="vinculos" type="number" min="0" placeholder="Digite o valor encontrado"></div>
+<div><label>Remuneração média (R$)</label><input id="remuneracao" type="number" min="0" step="0.01" placeholder="Ex.: 3250.50"></div>
+<div><label>Sexo predominante</label><select id="sexo"><option>Não informado</option><option>Masculino</option><option>Feminino</option><option>Empate / semelhante</option></select></div>
+<div><label>Faixa etária predominante</label><select id="idade"><option>Não informado</option><option>Até 17</option><option>18–24</option><option>25–29</option><option>30–39</option><option>40–49</option><option>50–64</option><option>65+</option></select></div>
+<div><label>Escolaridade predominante</label><select id="escolaridade"><option>Não informado</option><option>Sem instrução</option><option>Fundamental</option><option>Médio</option><option>Superior</option><option>Pós-graduação</option></select></div>
+</div>
+</div>
+
+<div class="card">
+<h2>Fonte</h2>
+<label>Fonte / tabela consultada <span class="required">*</span></label>
+<input id="fonte" value="RAIS 2025 — Ministério do Trabalho e Emprego">
+<label>Link ou referência da tabela</label>
+<input id="link" placeholder="https://script.google.com/macros/s/AKfycbxtp3uBCfSNBWhGH9sLCPHwVb_X_3hqk3NYn2druWeGAFKFQLilSpLhmhWjxQ0UmW4OSg/exec">
+<label>Observações</label><textarea id="obs" placeholder="Ex.: valor refere-se a vínculos formais no ano de 2025."></textarea>
+<p class="note">Regra do projeto: nenhum número entra no banco sem indicar a fonte e o ano.</p>
+<button onclick="enviar()">Enviar para o banco da turma</button>
+<button class="secondary" onclick="baixarJSON()">Baixar esta pesquisa</button>
+<div id="status" class="status"></div>
+</div>
+</main>
+<script>
+const BACKEND_URL = "COLE_AQUI_A_URL_DO_APPS_SCRIPT";
+const ids=["uf","municipio","aluno","data","categoria","ocupacao","cbo","setor","vinculos","remuneracao","sexo","idade","escolaridade","fonte","link","obs"];
+function dados(){let o={};ids.forEach(id=>o[id]=document.getElementById(id).value);o.timestamp=new Date().toISOString();return o}
+function msg(t,ok=true){let s=document.getElementById("status");s.style.display="block";s.style.background=ok?"#e8f5e9":"#fdecec";s.textContent=t}
+async function enviar(){
+ let d=dados(); if(!d.uf||!d.categoria||!d.ocupacao||!d.fonte){msg("Preencha os campos obrigatórios.",false);return}
+ if(BACKEND_URL.startsWith("COLE_")){msg("A interface está pronta, mas ainda precisa da URL do Google Apps Script. Use o guia de instalação.",false);return}
+ try{let r=await fetch(BACKEND_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain"},body:JSON.stringify(d)});msg("Pesquisa enviada ao banco da turma.");}
+ catch(e){msg("Não foi possível enviar. Verifique a URL do Apps Script e a conexão.",false)}
+}
+function baixarJSON(){let blob=new Blob([JSON.stringify(dados(),null,2)],{type:"application/json"});let a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="pesquisa_"+(document.getElementById("uf").value||"UF")+".json";a.click()}
+document.getElementById("data").value=new Date().toISOString().slice(0,10);
+</script>
+</body></html>
